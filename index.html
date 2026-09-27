@@ -1,131 +1,538 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
   <meta charset="UTF-8">
 
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 user-scalable=no">
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             user-scalable=no"
+  >
 
-  <title>QR受付テスト</title>
+  <title>インフルエンザ予防接種受付</title>
 
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script
+    src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+  </script>
+
 
   <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
+      padding: 24px;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Helvetica Neue",
+        "Yu Gothic",
+        sans-serif;
+      text-align: center;
+      background: #f4f5f7;
     }
 
     h1 {
+      margin-top: 10px;
       font-size: 32px;
+    }
+
+    .instruction {
+      font-size: 22px;
+      margin: 20px 0;
     }
 
     #reader {
       width: 100%;
-      max-width: 600px;
-      margin: 30px auto;
+      max-width: 620px;
+      margin: 20px auto;
       background: white;
+      border-radius: 14px;
+      overflow: hidden;
     }
 
     #message {
-      margin: 30px auto;
-      padding: 20px;
-      max-width: 600px;
+      width: 100%;
+      max-width: 620px;
+      min-height: 120px;
+      margin: 25px auto;
+      padding: 25px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+
+      background: white;
+
+      border-radius: 14px;
+
       font-size: 28px;
       font-weight: bold;
-      background: white;
-      border-radius: 10px;
     }
+
+    #message.success {
+      background: #e6f4ea;
+    }
+
+    #message.warning {
+      background: #fff4ce;
+    }
+
+    #message.error {
+      background: #fde7e9;
+    }
+
+    .name {
+      font-size: 36px;
+      margin: 8px 0;
+    }
+
+    .time {
+      font-size: 22px;
+      font-weight: normal;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-  <h1>インフルエンザ予防接種受付</h1>
+  <h1>
+    インフルエンザ予防接種受付
+  </h1>
 
-  <p>QRコードをカメラにかざしてください</p>
+  <div class="instruction">
+    QRコードをカメラにかざしてください
+  </div>
 
   <div id="reader"></div>
 
-  <div id="message">
+  <div
+    id="message"
+    class=""
+  >
     読取待機中
   </div>
 
-  <script>
 
-    const message =
-      document.getElementById("message");
+  <!--
+    GASへのPOST専用。
+    画面には表示されません。
+  -->
+  <iframe
+    name="gasFrame"
+    id="gasFrame"
+    style="display:none">
+  </iframe>
 
-    let processing = false;
 
-    const scanner =
-      new Html5Qrcode(
-        "reader",
-        {
-          formatsToSupport: [
-            Html5QrcodeSupportedFormats.QR_CODE
-          ]
-        }
-      );
+<script>
 
-    function onScanSuccess(decodedText) {
+  // ==========================
+  // 設定
+  // ==========================
 
-      if (processing) {
-        return;
+  const GAS_WEB_APP_URL =
+    'https://script.google.com/macros/s/AKfycbw52X7WKE0XZKYAnhAoT6SagJxCnKIPjTcA85dXWQ6VEPEtQp-ciWhiRKA2qwfcLRzV7A/exec';
+
+
+  // ==========================
+  // 状態管理
+  // ==========================
+
+  const message =
+    document.getElementById('message');
+
+  let processing = false;
+
+  let currentRequestId = null;
+
+  let lastToken = '';
+
+  let lastReadTime = 0;
+
+
+  // ==========================
+  // QR読取
+  // ==========================
+
+  const scanner =
+    new Html5Qrcode(
+      'reader',
+      {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
       }
+    );
 
-      processing = true;
 
-      message.innerHTML =
-        "✓ 読み取り成功<br><br>" +
-        decodedText;
+  function onScanSuccess(decodedText) {
 
-      setTimeout(() => {
+    const token =
+      String(decodedText || '').trim();
 
-        message.textContent =
-          "QRコードをかざしてください";
+    if (!token) {
+      return;
+    }
+
+
+    // GAS処理中は新しい読取を止める
+    if (processing) {
+      return;
+    }
+
+
+    // 同じQRをカメラに出し続けた場合の
+    // 連続読取防止
+    const now = Date.now();
+
+    if (
+      token === lastToken &&
+      now - lastReadTime < 8000
+    ) {
+      return;
+    }
+
+
+    lastToken = token;
+
+    lastReadTime = now;
+
+    submitReception(token);
+  }
+
+
+  scanner.start(
+
+    {
+      facingMode: 'environment'
+    },
+
+    {
+      fps: 10,
+
+      qrbox: {
+        width: 260,
+        height: 260
+      }
+    },
+
+    onScanSuccess,
+
+    function () {
+      // QRが映っていないときの
+      // 読取エラーは無視
+    }
+
+  ).catch(function (error) {
+
+    console.error(error);
+
+    showMessage(
+      'カメラを起動できませんでした。',
+      'error'
+    );
+  });
+
+
+  // ==========================
+  // GASへ送信
+  // ==========================
+
+  function submitReception(token) {
+
+    processing = true;
+
+    currentRequestId =
+      createRequestId();
+
+    showMessage(
+      '受付処理中…',
+      ''
+    );
+
+
+    const form =
+      document.createElement('form');
+
+    form.method = 'POST';
+
+    form.action =
+      GAS_WEB_APP_URL;
+
+    form.target =
+      'gasFrame';
+
+    form.style.display =
+      'none';
+
+
+    addHiddenInput(
+      form,
+      'token',
+      token
+    );
+
+    addHiddenInput(
+      form,
+      'requestId',
+      currentRequestId
+    );
+
+
+    document.body.appendChild(form);
+
+    form.submit();
+
+    form.remove();
+
+
+    const requestId =
+      currentRequestId;
+
+
+    // GASから応答がない場合
+    setTimeout(function () {
+
+      if (
+        processing &&
+        currentRequestId === requestId
+      ) {
 
         processing = false;
 
-      }, 2000);
-    }
+        currentRequestId = null;
 
-    scanner.start(
-
-      {
-        facingMode: "environment"
-      },
-
-      {
-        fps: 10,
-
-        qrbox: {
-          width: 250,
-          height: 250
-        }
-      },
-
-      onScanSuccess,
-
-      function(errorMessage) {
-        // 読み取れない間のエラーは無視
+        showMessage(
+          '通信できませんでした。<br>もう一度かざしてください。',
+          'error'
+        );
       }
 
-    ).catch(function(error) {
+    }, 10000);
+  }
 
-      message.textContent =
-        "カメラを起動できませんでした";
 
-      console.error(error);
+  function addHiddenInput(
+    form,
+    name,
+    value
+  ) {
 
-    });
+    const input =
+      document.createElement('input');
 
-  </script>
+    input.type =
+      'hidden';
+
+    input.name =
+      name;
+
+    input.value =
+      value;
+
+    form.appendChild(input);
+  }
+
+
+  // ==========================
+  // GASからの受付結果
+  // ==========================
+
+  window.addEventListener(
+    'message',
+    function (event) {
+
+      const data =
+        event.data;
+
+
+      if (
+        !data ||
+        data.source !== 'flu-reception'
+      ) {
+        return;
+      }
+
+
+      // 今送った処理に対する返答か確認
+      if (
+        data.requestId !==
+        currentRequestId
+      ) {
+        return;
+      }
+
+
+      processing = false;
+
+      currentRequestId = null;
+
+
+      switch (data.status) {
+
+        case 'success':
+
+          showMessage(
+            '✓ 受付完了' +
+            '<div class="name">' +
+            escapeHtml(data.name) +
+            ' さん</div>' +
+            '<div class="time">' +
+            escapeHtml(data.time) +
+            '</div>',
+            'success'
+          );
+
+          resetMessageLater(1500);
+
+          break;
+
+
+        case 'duplicate':
+
+          showMessage(
+            '受付済みです' +
+            '<div class="name">' +
+            escapeHtml(data.name) +
+            ' さん</div>' +
+            '<div class="time">' +
+            '受付時刻 ' +
+            escapeHtml(data.time) +
+            '</div>',
+            'warning'
+          );
+
+          resetMessageLater(2000);
+
+          break;
+
+
+        case 'closed':
+
+          showMessage(
+            '現在は受付時間外です。',
+            'warning'
+          );
+
+          break;
+
+
+        case 'invalid':
+
+          showMessage(
+            escapeHtml(
+              data.message ||
+              '登録されていないQRコードです。'
+            ),
+            'error'
+          );
+
+          resetMessageLater(2500);
+
+          break;
+
+
+        case 'busy':
+
+          showMessage(
+            '受付が混み合っています。<br>もう一度かざしてください。',
+            'warning'
+          );
+
+          resetMessageLater(1500);
+
+          break;
+
+
+        default:
+
+          showMessage(
+            '受付処理でエラーが発生しました。',
+            'error'
+          );
+
+          resetMessageLater(2500);
+      }
+    }
+  );
+
+
+  // ==========================
+  // 表示
+  // ==========================
+
+  function showMessage(
+    text,
+    cssClass
+  ) {
+
+    message.className =
+      cssClass || '';
+
+    message.innerHTML =
+      text;
+  }
+
+
+  function resetMessageLater(
+    milliseconds
+  ) {
+
+    setTimeout(function () {
+
+      showMessage(
+        'QRコードをかざしてください',
+        ''
+      );
+
+    }, milliseconds);
+  }
+
+
+  // ==========================
+  // 共通
+  // ==========================
+
+  function createRequestId() {
+
+    if (
+      window.crypto &&
+      crypto.randomUUID
+    ) {
+      return crypto.randomUUID();
+    }
+
+    return (
+      Date.now().toString(36) +
+      Math.random()
+        .toString(36)
+        .substring(2)
+    );
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+</script>
 
 </body>
 </html>
