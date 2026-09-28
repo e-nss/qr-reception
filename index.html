@@ -648,49 +648,53 @@
 
     lastToken =
       token;
-    
+
     lastReadTime =
       now;
-    
-    
+
+
     /*
       QRコードを読み取った瞬間に
       短い音を鳴らす
     */
     playReadSound();
-    
-    
+
+
     /*
       「QRコードを離してください」
       を表示
     */
     showReadingResult();
-    
-    
+
+
     /*
       GASへ受付登録
     */
     submitReception(token);
 
+  }   // ← ★これが不足していました
 
-    function showReadingResult() {
-    
-      resultOverlay.className =
-        'show reading';
-    
-      resultIcon.textContent =
-        '✓';
-    
-      resultTitle.textContent =
-        '読み取りました';
-    
-      resultName.textContent =
-        'QRコードを離してください';
-    
-      resultDetail.textContent =
-        '受付処理中…';
-    
-    }
+
+
+  function showReadingResult() {
+
+    resultOverlay.className =
+      'show reading';
+
+    resultIcon.textContent =
+      '✓';
+
+    resultTitle.textContent =
+      '読み取りました';
+
+    resultName.textContent =
+      'QRコードを離してください';
+
+    resultDetail.textContent =
+      '受付処理中…';
+
+  }
+  
   // ==================================================
   // GASへ受付情報送信
   // ==================================================
@@ -1253,8 +1257,8 @@
 function playReadSound() {
 
   playTone(
-    900,
-    0.10
+    1300,
+    0.07
   );
 
 }
