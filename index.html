@@ -213,27 +213,27 @@
 
 
   scanner.start(
-
+  
     {
-      facingMode: 'environment'
+      facingMode: 'user'
     },
-
+  
     {
       fps: 10,
-
+  
       qrbox: {
         width: 260,
         height: 260
       }
     },
-
+  
     onScanSuccess,
-
+  
     function () {
       // QRが映っていないときの
       // 読取エラーは無視
     }
-
+  
   ).catch(function (error) {
 
     console.error(error);
