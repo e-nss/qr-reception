@@ -28,80 +28,240 @@
     body {
       margin: 0;
       padding: 24px;
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Helvetica Neue",
         "Yu Gothic",
         sans-serif;
+
       text-align: center;
       background: #f4f5f7;
+
+      min-height: 100vh;
     }
+
 
     h1 {
       margin-top: 10px;
+      margin-bottom: 10px;
       font-size: 32px;
     }
 
+
     .instruction {
       font-size: 22px;
-      margin: 20px 0;
+      margin: 18px 0;
     }
+
+
+    /* =========================
+       カメラ
+       ========================= */
 
     #reader {
       width: 100%;
-      max-width: 620px;
+      max-width: 700px;
+
       margin: 20px auto;
-      background: white;
-      border-radius: 14px;
+
+      background: #000;
+
+      border-radius: 18px;
+
       overflow: hidden;
     }
-    
+
+
+    /*
+      前面カメラを鏡のように表示
+      読み取り処理そのものには影響させない
+    */
     #reader video {
-      transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1) !important;
+      -webkit-transform: scaleX(-1) !important;
     }
-    
+
+
+    /* =========================
+       通常メッセージ
+       ========================= */
+
     #message {
       width: 100%;
-      max-width: 620px;
-      min-height: 120px;
-      margin: 25px auto;
-      padding: 25px;
+      max-width: 700px;
+
+      min-height: 100px;
+
+      margin: 22px auto;
+
+      padding: 20px;
 
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
 
       background: white;
 
       border-radius: 14px;
 
-      font-size: 28px;
+      font-size: 27px;
       font-weight: bold;
     }
 
-    #message.success {
-      background: #e6f4ea;
+
+    /* =========================
+       受付結果 全画面表示
+       ========================= */
+
+    #resultOverlay {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9999;
+
+      display: none;
+
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 40px;
+
+      text-align: center;
+
+      color: white;
+
+      pointer-events: none;
     }
 
-    #message.warning {
-      background: #fff4ce;
+
+    #resultOverlay.show {
+      display: flex;
     }
 
-    #message.error {
-      background: #fde7e9;
+
+    #resultOverlay.success {
+      background: #188038;
     }
 
-    .name {
-      font-size: 36px;
-      margin: 8px 0;
+
+    #resultOverlay.duplicate {
+      background: #d97706;
     }
 
-    .time {
-      font-size: 22px;
-      font-weight: normal;
+
+    #resultOverlay.error {
+      background: #c5221f;
+    }
+
+
+    #resultIcon {
+      font-size: 100px;
+      line-height: 1;
+      margin-bottom: 25px;
+    }
+
+
+    #resultTitle {
+      font-size: 52px;
+      font-weight: 800;
+      margin-bottom: 30px;
+    }
+
+
+    #resultName {
+      font-size: 44px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+
+    #resultDetail {
+      font-size: 26px;
+    }
+
+
+    /* =========================
+       最初の受付開始画面
+       ========================= */
+
+    #startScreen {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 10000;
+
+      display: flex;
+
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 40px;
+
+      background: #f4f5f7;
+    }
+
+
+    #startScreen h2 {
+      font-size: 38px;
+      margin-bottom: 20px;
+    }
+
+
+    #startScreen p {
+      font-size: 21px;
+      line-height: 1.7;
+      margin-bottom: 35px;
+    }
+
+
+    #startButton {
+      min-width: 300px;
+
+      padding: 22px 45px;
+
+      border: none;
+      border-radius: 14px;
+
+      font-size: 30px;
+      font-weight: bold;
+
+      background: #1a73e8;
+      color: white;
+
+      cursor: pointer;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+
+    #startButton:active {
+      transform: scale(0.98);
+    }
+
+
+    @media (max-width: 700px) {
+
+      h1 {
+        font-size: 27px;
+      }
+
+      .instruction {
+        font-size: 19px;
+      }
+
+      #resultTitle {
+        font-size: 42px;
+      }
+
+      #resultName {
+        font-size: 36px;
+      }
     }
 
   </style>
@@ -111,28 +271,74 @@
 
 <body>
 
+
+  <!-- =========================
+       初回開始画面
+       ========================= -->
+
+  <div id="startScreen">
+
+    <h2>
+      インフルエンザ予防接種受付
+    </h2>
+
+    <p>
+      「受付開始」を押すと<br>
+      カメラを起動します。
+    </p>
+
+    <button id="startButton">
+      受付開始
+    </button>
+
+  </div>
+
+
+
+  <!-- =========================
+       通常受付画面
+       ========================= -->
+
   <h1>
     インフルエンザ予防接種受付
   </h1>
 
   <div class="instruction">
-    QRコードをカメラにかざしてください
+    QRコードを枠内にかざしてください
   </div>
+
 
   <div id="reader"></div>
 
-  <div
-    id="message"
-    class=""
-  >
-    読取待機中
+
+  <div id="message">
+    受付開始待ち
   </div>
 
 
-  <!--
-    GASへのPOST専用。
-    画面には表示されません。
-  -->
+
+  <!-- =========================
+       全画面結果
+       ========================= -->
+
+  <div id="resultOverlay">
+
+    <div id="resultIcon"></div>
+
+    <div id="resultTitle"></div>
+
+    <div id="resultName"></div>
+
+    <div id="resultDetail"></div>
+
+  </div>
+
+
+
+  <!-- =========================
+       GAS通信用
+       ========================= -->
+
   <iframe
     name="gasFrame"
     id="gasFrame"
@@ -140,22 +346,65 @@
   </iframe>
 
 
+
 <script>
 
-  // ==========================
+
+  // ==================================================
   // 設定
-  // ==========================
+  // ==================================================
 
   const GAS_WEB_APP_URL =
     'https://script.google.com/macros/s/AKfycbw52X7WKE0XZKYAnhAoT6SagJxCnKIPjTcA85dXWQ6VEPEtQp-ciWhiRKA2qwfcLRzV7A/exec';
 
 
-  // ==========================
-  // 状態管理
-  // ==========================
+  // 成功表示時間
+  const SUCCESS_DISPLAY_TIME = 1400;
+
+  // 受付済み表示時間
+  const DUPLICATE_DISPLAY_TIME = 1900;
+
+  // エラー表示時間
+  const ERROR_DISPLAY_TIME = 2200;
+
+  // 同一QRを再読取しない時間
+  const SAME_QR_LOCK_TIME = 7000;
+
+
+
+  // ==================================================
+  // DOM
+  // ==================================================
 
   const message =
     document.getElementById('message');
+
+  const startScreen =
+    document.getElementById('startScreen');
+
+  const startButton =
+    document.getElementById('startButton');
+
+  const resultOverlay =
+    document.getElementById('resultOverlay');
+
+  const resultIcon =
+    document.getElementById('resultIcon');
+
+  const resultTitle =
+    document.getElementById('resultTitle');
+
+  const resultName =
+    document.getElementById('resultName');
+
+  const resultDetail =
+    document.getElementById('resultDetail');
+
+
+
+  // ==================================================
+  // 状態管理
+  // ==================================================
 
   let processing = false;
 
@@ -165,10 +414,15 @@
 
   let lastReadTime = 0;
 
+  let scannerStarted = false;
 
-  // ==========================
-  // QR読取
-  // ==========================
+  let audioContext = null;
+
+
+
+  // ==================================================
+  // QRスキャナー
+  // ==================================================
 
   const scanner =
     new Html5Qrcode(
@@ -181,102 +435,261 @@
     );
 
 
-  function onScanSuccess(decodedText) {
+
+  // ==================================================
+  // 受付開始
+  // ==================================================
+
+  startButton.addEventListener(
+    'click',
+    async function () {
+
+      startButton.disabled = true;
+
+      startButton.textContent =
+        '起動中…';
+
+
+      /*
+        iPad Safariの音声制限対策。
+
+        ユーザーがボタンを押したタイミングで
+        AudioContextを開始しておく。
+      */
+      try {
+
+        const AudioContextClass =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        audioContext =
+          new AudioContextClass();
+
+        if (
+          audioContext.state === 'suspended'
+        ) {
+
+          await audioContext.resume();
+        }
+
+      } catch (error) {
+
+        console.warn(
+          '音声機能を開始できませんでした。',
+          error
+        );
+      }
+
+
+      try {
+
+        await startScanner();
+
+        startScreen.style.display =
+          'none';
+
+        message.textContent =
+          'QRコードをかざしてください';
+
+      } catch (error) {
+
+        console.error(error);
+
+        startButton.disabled = false;
+
+        startButton.textContent =
+          '再試行';
+
+        alert(
+          'カメラを起動できませんでした。\n' +
+          'Safariのカメラ許可をご確認ください。'
+        );
+      }
+
+    }
+  );
+
+
+
+  // ==================================================
+  // カメラ開始
+  // ==================================================
+
+  async function startScanner() {
+
+    if (scannerStarted) {
+      return;
+    }
+
+
+    await scanner.start(
+
+      /*
+        前面カメラを優先
+      */
+      {
+        facingMode: 'user'
+      },
+
+
+      /*
+        QR読取設定
+      */
+      {
+
+        fps: 12,
+
+
+        /*
+          iPadの画面サイズに合わせて
+          読取枠を大きくする。
+
+          短辺の約82%。
+          最大430px。
+        */
+        qrbox: function (
+          viewfinderWidth,
+          viewfinderHeight
+        ) {
+
+          const shortSide =
+            Math.min(
+              viewfinderWidth,
+              viewfinderHeight
+            );
+
+          const size =
+            Math.floor(
+              Math.min(
+                430,
+                shortSide * 0.82
+              )
+            );
+
+          return {
+            width: size,
+            height: size
+          };
+        }
+
+      },
+
+
+      onScanSuccess,
+
+
+      function () {
+
+        /*
+          QRが映っていない時にも
+          頻繁に呼ばれるため無視
+        */
+
+      }
+
+    );
+
+
+    scannerStarted = true;
+  }
+
+
+
+  // ==================================================
+  // QR読取成功
+  // ==================================================
+
+  function onScanSuccess(
+    decodedText
+  ) {
 
     const token =
-      String(decodedText || '').trim();
+      String(
+        decodedText || ''
+      ).trim();
+
 
     if (!token) {
       return;
     }
 
 
-    // GAS処理中は新しい読取を止める
+    /*
+      GAS処理中・結果表示中は
+      次のQRを受け付けない
+    */
     if (processing) {
       return;
     }
 
 
-    // 同じQRをカメラに出し続けた場合の
-    // 連続読取防止
-    const now = Date.now();
+    /*
+      同じQRをカメラ前に
+      出し続けた場合の二重読取防止
+    */
+    const now =
+      Date.now();
+
 
     if (
       token === lastToken &&
-      now - lastReadTime < 8000
+      now - lastReadTime
+        < SAME_QR_LOCK_TIME
     ) {
+
       return;
     }
 
 
-    lastToken = token;
+    lastToken =
+      token;
 
-    lastReadTime = now;
+    lastReadTime =
+      now;
+
 
     submitReception(token);
   }
 
 
-  scanner.start(
-  
-    {
-      facingMode: 'user'
-    },
-  
-    {
-      fps: 10,
-  
-      qrbox: {
-        width: 260,
-        height: 260
-      }
-    },
-  
-    onScanSuccess,
-  
-    function () {
-      // QRが映っていないときの
-      // 読取エラーは無視
-    }
-  
-  ).catch(function (error) {
 
-    console.error(error);
+  // ==================================================
+  // GASへ受付情報送信
+  // ==================================================
 
-    showMessage(
-      'カメラを起動できませんでした。',
-      'error'
-    );
-  });
+  function submitReception(
+    token
+  ) {
 
+    processing =
+      true;
 
-  // ==========================
-  // GASへ送信
-  // ==========================
-
-  function submitReception(token) {
-
-    processing = true;
 
     currentRequestId =
       createRequestId();
 
-    showMessage(
-      '受付処理中…',
-      ''
-    );
+
+    message.textContent =
+      '受付処理中…';
 
 
     const form =
-      document.createElement('form');
+      document.createElement(
+        'form'
+      );
 
-    form.method = 'POST';
+
+    form.method =
+      'POST';
+
 
     form.action =
       GAS_WEB_APP_URL;
 
+
     form.target =
       'gasFrame';
+
 
     form.style.display =
       'none';
@@ -288,6 +701,7 @@
       token
     );
 
+
     addHiddenInput(
       form,
       'requestId',
@@ -295,37 +709,52 @@
     );
 
 
-    document.body.appendChild(form);
+    document.body.appendChild(
+      form
+    );
+
 
     form.submit();
 
+
     form.remove();
+
 
 
     const requestId =
       currentRequestId;
 
 
-    // GASから応答がない場合
-    setTimeout(function () {
 
-      if (
-        processing &&
-        currentRequestId === requestId
-      ) {
+    /*
+      GASから返事がない場合
+    */
+    setTimeout(
+      function () {
 
-        processing = false;
+        if (
+          processing &&
+          currentRequestId ===
+            requestId
+        ) {
 
-        currentRequestId = null;
+          showResult(
+            'error',
+            '！',
+            '通信エラー',
+            '',
+            'もう一度QRコードをかざしてください。',
+            ERROR_DISPLAY_TIME
+          );
 
-        showMessage(
-          '通信できませんでした。<br>もう一度かざしてください。',
-          'error'
-        );
-      }
+        }
 
-    }, 10000);
+      },
+      10000
+    );
+
   }
+
 
 
   function addHiddenInput(
@@ -335,24 +764,33 @@
   ) {
 
     const input =
-      document.createElement('input');
+      document.createElement(
+        'input'
+      );
+
 
     input.type =
       'hidden';
 
+
     input.name =
       name;
+
 
     input.value =
       value;
 
-    form.appendChild(input);
+
+    form.appendChild(
+      input
+    );
   }
 
 
-  // ==========================
-  // GASからの受付結果
-  // ==========================
+
+  // ==================================================
+  // GASから受付結果を受信
+  // ==================================================
 
   window.addEventListener(
     'message',
@@ -364,150 +802,418 @@
 
       if (
         !data ||
-        data.source !== 'flu-reception'
+        data.source !==
+          'flu-reception'
       ) {
+
         return;
       }
 
 
-      // 今送った処理に対する返答か確認
       if (
         data.requestId !==
-        currentRequestId
+          currentRequestId
       ) {
+
         return;
       }
 
 
-      processing = false;
 
-      currentRequestId = null;
+      switch (
+        data.status
+      ) {
 
 
-      switch (data.status) {
+        // ------------------------------------------
+        // 新規受付成功
+        // ------------------------------------------
 
         case 'success':
 
-          showMessage(
-            '✓ 受付完了' +
-            '<div class="name">' +
-            escapeHtml(data.name) +
-            ' さん</div>' +
-            '<div class="time">' +
-            escapeHtml(data.time) +
-            '</div>',
-            'success'
-          );
+          playSuccessSound();
 
-          resetMessageLater(1500);
+          showResult(
+            'success',
+            '✓',
+            '受付完了',
+            data.name + ' さん',
+            data.time || '',
+            SUCCESS_DISPLAY_TIME
+          );
 
           break;
 
+
+
+        // ------------------------------------------
+        // 受付済み
+        // ------------------------------------------
 
         case 'duplicate':
 
-          showMessage(
-            '受付済みです' +
-            '<div class="name">' +
-            escapeHtml(data.name) +
-            ' さん</div>' +
-            '<div class="time">' +
-            '受付時刻 ' +
-            escapeHtml(data.time) +
-            '</div>',
-            'warning'
-          );
+          playWarningSound();
 
-          resetMessageLater(2000);
+          showResult(
+            'duplicate',
+            '！',
+            '受付済みです',
+            data.name + ' さん',
+            '受付時刻 ' +
+              (data.time || ''),
+            DUPLICATE_DISPLAY_TIME
+          );
 
           break;
 
+
+
+        // ------------------------------------------
+        // 受付時間外
+        // ------------------------------------------
 
         case 'closed':
 
-          showMessage(
-            '現在は受付時間外です。',
-            'warning'
+          playErrorSound();
+
+          showResult(
+            'error',
+            '×',
+            '受付時間外です',
+            '',
+            '',
+            ERROR_DISPLAY_TIME
           );
 
           break;
 
+
+
+        // ------------------------------------------
+        // 未登録QR
+        // ------------------------------------------
 
         case 'invalid':
 
-          showMessage(
-            escapeHtml(
-              data.message ||
-              '登録されていないQRコードです。'
-            ),
-            'error'
-          );
+          playErrorSound();
 
-          resetMessageLater(2500);
+          showResult(
+            'error',
+            '×',
+            '受付できません',
+            '',
+            data.message ||
+              '登録されていないQRコードです。',
+            ERROR_DISPLAY_TIME
+          );
 
           break;
 
+
+
+        // ------------------------------------------
+        // 混雑
+        // ------------------------------------------
 
         case 'busy':
 
-          showMessage(
-            '受付が混み合っています。<br>もう一度かざしてください。',
-            'warning'
-          );
+          playWarningSound();
 
-          resetMessageLater(1500);
+          showResult(
+            'duplicate',
+            '！',
+            '受付処理中です',
+            '',
+            'もう一度QRコードをかざしてください。',
+            1500
+          );
 
           break;
 
 
+
+        // ------------------------------------------
+        // その他エラー
+        // ------------------------------------------
+
         default:
 
-          showMessage(
+          playErrorSound();
+
+          showResult(
+            'error',
+            '×',
+            'エラー',
+            '',
             '受付処理でエラーが発生しました。',
-            'error'
+            ERROR_DISPLAY_TIME
           );
 
-          resetMessageLater(2500);
       }
+
     }
   );
 
 
-  // ==========================
-  // 表示
-  // ==========================
 
-  function showMessage(
-    text,
-    cssClass
+  // ==================================================
+  // 全画面結果表示
+  // ==================================================
+
+  function showResult(
+    type,
+    icon,
+    title,
+    name,
+    detail,
+    displayTime
   ) {
 
-    message.className =
-      cssClass || '';
+    /*
+      結果表示中もprocessing=trueなので
+      カメラは動いていても
+      次の受付は開始されない
+    */
 
-    message.innerHTML =
-      text;
+
+    resultOverlay.className =
+      'show ' + type;
+
+
+    resultIcon.textContent =
+      icon;
+
+
+    resultTitle.textContent =
+      title;
+
+
+    resultName.textContent =
+      name || '';
+
+
+    resultDetail.textContent =
+      detail || '';
+
+
+    message.textContent =
+      title;
+
+
+
+    setTimeout(
+      function () {
+
+        resultOverlay.className =
+          '';
+
+
+        resultIcon.textContent =
+          '';
+
+
+        resultTitle.textContent =
+          '';
+
+
+        resultName.textContent =
+          '';
+
+
+        resultDetail.textContent =
+          '';
+
+
+        processing =
+          false;
+
+
+        currentRequestId =
+          null;
+
+
+        message.textContent =
+          'QRコードをかざしてください';
+
+      },
+      displayTime
+    );
+
   }
 
 
-  function resetMessageLater(
-    milliseconds
+
+  // ==================================================
+  // 音声
+  // ==================================================
+
+  function playTone(
+    frequency,
+    duration,
+    volume = 0.18
   ) {
 
-    setTimeout(function () {
+    if (!audioContext) {
+      return;
+    }
 
-      showMessage(
-        'QRコードをかざしてください',
-        ''
+
+    try {
+
+      const oscillator =
+        audioContext.createOscillator();
+
+
+      const gain =
+        audioContext.createGain();
+
+
+      const now =
+        audioContext.currentTime;
+
+
+      oscillator.type =
+        'sine';
+
+
+      oscillator.frequency
+        .setValueAtTime(
+          frequency,
+          now
+        );
+
+
+      /*
+        音の頭と終わりを滑らかにして
+        「ブツッ」というノイズを防ぐ
+      */
+      gain.gain
+        .setValueAtTime(
+          0.0001,
+          now
+        );
+
+
+      gain.gain
+        .exponentialRampToValueAtTime(
+          volume,
+          now + 0.01
+        );
+
+
+      gain.gain
+        .exponentialRampToValueAtTime(
+          0.0001,
+          now + duration
+        );
+
+
+      oscillator.connect(
+        gain
       );
 
-    }, milliseconds);
+
+      gain.connect(
+        audioContext.destination
+      );
+
+
+      oscillator.start(
+        now
+      );
+
+
+      oscillator.stop(
+        now +
+        duration +
+        0.02
+      );
+
+    } catch (error) {
+
+      console.warn(
+        '音声再生エラー',
+        error
+      );
+    }
+
   }
 
 
-  // ==========================
-  // 共通
-  // ==========================
+
+  /*
+    受付成功
+
+    高めの2音
+  */
+  function playSuccessSound() {
+
+    playTone(
+      880,
+      0.10
+    );
+
+
+    setTimeout(
+      function () {
+
+        playTone(
+          1175,
+          0.16
+        );
+
+      },
+      100
+    );
+
+  }
+
+
+
+  /*
+    受付済み
+  */
+  function playWarningSound() {
+
+    playTone(
+      650,
+      0.16
+    );
+
+  }
+
+
+
+  /*
+    エラー
+  */
+  function playErrorSound() {
+
+    playTone(
+      330,
+      0.20
+    );
+
+
+    setTimeout(
+      function () {
+
+        playTone(
+          280,
+          0.20
+        );
+
+      },
+      180
+    );
+
+  }
+
+
+
+  // ==================================================
+  // 共通処理
+  // ==================================================
 
   function createRequestId() {
 
@@ -515,8 +1221,10 @@
       window.crypto &&
       crypto.randomUUID
     ) {
+
       return crypto.randomUUID();
     }
+
 
     return (
       Date.now().toString(36) +
@@ -524,20 +1232,12 @@
         .toString(36)
         .substring(2)
     );
-  }
 
-
-  function escapeHtml(value) {
-
-    return String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
   }
 
 </script>
 
+
 </body>
+
 </html>
