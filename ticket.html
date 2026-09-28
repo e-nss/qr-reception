@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             user-scalable=no"
+  >
+
+  <title>予防接種 受付用QRコード</title>
+
+  <script src="https://unpkg.com/@qrcode-js/browser"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 30px;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Helvetica Neue",
+        "Yu Gothic",
+        sans-serif;
+
+      text-align: center;
+
+      background: #f4f5f7;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 0 0 20px;
+    }
+
+    .instruction {
+      font-size: 22px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    #qrArea {
+      background: white;
+      padding: 25px;
+      border-radius: 18px;
+    }
+
+    #qrCanvas {
+      display: block;
+      width: min(70vw, 430px);
+      height: auto;
+    }
+
+    .note {
+      margin-top: 25px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    #error {
+      display: none;
+
+      padding: 30px;
+
+      font-size: 24px;
+      font-weight: bold;
+
+      background: #fde7e9;
+      border-radius: 14px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <h1>
+    インフルエンザ予防接種
+  </h1>
+
+
+  <div class="instruction">
+    下のQRコードを<br>
+    受付用iPadにかざしてください
+  </div>
+
+
+  <div id="qrArea">
+
+    <canvas id="qrCanvas"></canvas>
+
+  </div>
+
+
+  <div class="note">
+    受付用iPadから「ピッ」と音が鳴ったら<br>
+    QRコードを離してください。
+  </div>
+
+
+  <div id="error">
+    受付用QRコードを表示できません。
+  </div>
+
+
+<script>
+
+  /*
+    URLの # 以降から受付IDを取得
+  */
+  const token =
+    decodeURIComponent(
+      window.location.hash.substring(1)
+    ).trim();
+
+
+  /*
+    Utilities.getUuid()で生成する
+    UUID形式か簡易チェック
+  */
+  const uuidPattern =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+
+  if (!uuidPattern.test(token)) {
+
+    document.getElementById('qrArea')
+      .style.display = 'none';
+
+    document.getElementById('error')
+      .style.display = 'block';
+
+  } else {
+
+    const canvas =
+      document.getElementById('qrCanvas');
+
+
+    const qr =
+      QRCode.QRCodeBrowser(canvas);
+
+
+    qr.setOptions({
+
+      text: token,
+
+      size: 500
+
+    });
+
+
+    qr.draw();
+
+  }
+
+</script>
+
+
+</body>
+
+</html>
