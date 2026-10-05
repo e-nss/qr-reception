@@ -268,7 +268,206 @@
       #resultOverlay.reading {
         background: #1a73e8;
       }
-    
+ /* =========================
+   社員番号受付ボタン
+   ========================= */
+
+#manualReceptionButton {
+  position: fixed;
+
+  right: 18px;
+  bottom: 18px;
+
+  z-index: 200;
+
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #5f6368;
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+#manualReceptionButton:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================
+   社員番号受付 全画面
+   ========================= */
+
+#manualReceptionOverlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9000;
+
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  padding: 30px;
+
+  background: rgba(
+    244,
+    245,
+    247,
+    0.98
+  );
+}
+
+
+#manualReceptionOverlay.show {
+  display: flex;
+}
+
+
+.manual-card {
+  width: 100%;
+  max-width: 560px;
+
+  padding: 35px;
+
+  background: white;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 4px 24px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+.manual-card h2 {
+  margin:
+    0 0 25px;
+
+  font-size: 32px;
+}
+
+
+.manual-card p {
+  font-size: 20px;
+}
+
+
+#employeeNoInput {
+  width: 100%;
+
+  padding: 16px;
+
+  border:
+    2px solid #dadce0;
+
+  border-radius: 10px;
+
+  font-size: 34px;
+
+  text-align: center;
+}
+
+
+#employeeNoInput:focus {
+  outline: none;
+
+  border-color:
+    #1a73e8;
+}
+
+
+#manualMessage {
+  min-height: 32px;
+
+  margin-top: 12px;
+
+  color: #c5221f;
+
+  font-size: 18px;
+  font-weight: bold;
+}
+
+
+.manual-buttons {
+  display: flex;
+
+  gap: 14px;
+
+  margin-top: 25px;
+}
+
+
+.manual-button {
+  flex: 1;
+
+  padding: 17px;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 21px;
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+
+.manual-button.primary {
+  background:
+    #1a73e8;
+
+  color:
+    white;
+}
+
+
+.manual-button.secondary {
+  background:
+    #e8eaed;
+
+  color:
+    #202124;
+}
+
+
+.employee-confirm {
+  padding: 22px;
+
+  background:
+    #f1f3f4;
+
+  border-radius: 12px;
+
+  font-size: 21px;
+
+  line-height: 1.8;
+}
+
+
+.confirm-name {
+  margin-bottom: 8px;
+
+  font-size: 32px;
+  font-weight: bold;
+}
+
+
+.confirm-question {
+  margin-top: 25px;
+
+  font-weight: bold;
+}   
   </style>
 
 </head>
@@ -320,7 +519,123 @@
     受付開始待ち
   </div>
 
+<!-- =========================
+     社員番号受付
+     ========================= -->
 
+<button
+  id="manualReceptionButton"
+  type="button">
+  社員番号で受付
+</button>
+
+
+<div id="manualReceptionOverlay">
+
+  <div class="manual-card">
+
+    <h2>
+      社員番号で受付
+    </h2>
+
+
+    <!-- 入力画面 -->
+    <div id="manualInputStep">
+
+      <p>
+        社員番号を入力してください
+      </p>
+
+      <input
+        id="employeeNoInput"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="社員番号"
+      >
+
+
+      <div
+        id="manualMessage">
+      </div>
+
+
+      <div class="manual-buttons">
+
+        <button
+          id="manualCancelButton"
+          type="button"
+          class="manual-button secondary">
+          戻る
+        </button>
+
+        <button
+          id="employeeSearchButton"
+          type="button"
+          class="manual-button primary">
+          検索
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- 確認画面 -->
+    <div
+      id="manualConfirmStep"
+      style="display:none;">
+
+      <div class="employee-confirm">
+
+        <div
+          id="confirmName"
+          class="confirm-name">
+        </div>
+
+        <div
+          id="confirmDepartment">
+        </div>
+
+        <div
+          id="confirmEmployeeNo">
+        </div>
+
+        <div
+          id="confirmTimeSlot">
+        </div>
+
+      </div>
+
+
+      <p class="confirm-question">
+        この社員を受付しますか？
+      </p>
+
+
+      <div class="manual-buttons">
+
+        <button
+          id="manualBackButton"
+          type="button"
+          class="manual-button secondary">
+          戻る
+        </button>
+
+        <button
+          id="manualRegisterButton"
+          type="button"
+          class="manual-button primary">
+          受付する
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
   <!-- =========================
        全画面結果
@@ -405,7 +720,75 @@
   const resultDetail =
     document.getElementById('resultDetail');
 
+const manualReceptionButton =
+  document.getElementById(
+    'manualReceptionButton'
+  );
 
+const manualReceptionOverlay =
+  document.getElementById(
+    'manualReceptionOverlay'
+  );
+
+const manualInputStep =
+  document.getElementById(
+    'manualInputStep'
+  );
+
+const manualConfirmStep =
+  document.getElementById(
+    'manualConfirmStep'
+  );
+
+const employeeNoInput =
+  document.getElementById(
+    'employeeNoInput'
+  );
+
+const employeeSearchButton =
+  document.getElementById(
+    'employeeSearchButton'
+  );
+
+const manualCancelButton =
+  document.getElementById(
+    'manualCancelButton'
+  );
+
+const manualBackButton =
+  document.getElementById(
+    'manualBackButton'
+  );
+
+const manualRegisterButton =
+  document.getElementById(
+    'manualRegisterButton'
+  );
+
+const manualMessage =
+  document.getElementById(
+    'manualMessage'
+  );
+
+const confirmName =
+  document.getElementById(
+    'confirmName'
+  );
+
+const confirmDepartment =
+  document.getElementById(
+    'confirmDepartment'
+  );
+
+const confirmEmployeeNo =
+  document.getElementById(
+    'confirmEmployeeNo'
+  );
+
+const confirmTimeSlot =
+  document.getElementById(
+    'confirmTimeSlot'
+  );
 
   // ==================================================
   // 状態管理
@@ -423,7 +806,9 @@
 
   let audioContext = null;
 
-
+  let currentAction = null;
+  
+  let selectedEmployeeNo = '';
 
   // ==================================================
   // QRスキャナー
@@ -489,6 +874,223 @@
       try {
 
         await startScanner();
+
+      // ==================================================
+// 社員番号受付を開く
+// ==================================================
+
+manualReceptionButton.addEventListener(
+  'click',
+  function () {
+
+    if (processing) {
+      return;
+    }
+
+
+    processing =
+      true;
+
+
+    selectedEmployeeNo =
+      '';
+
+
+    employeeNoInput.value =
+      '';
+
+
+    manualMessage.textContent =
+      '';
+
+
+    manualInputStep.style.display =
+      'block';
+
+
+    manualConfirmStep.style.display =
+      'none';
+
+
+    manualReceptionOverlay.classList.add(
+      'show'
+    );
+
+
+    setTimeout(
+      function () {
+
+        employeeNoInput.focus();
+
+      },
+      100
+    );
+
+  }
+);
+
+
+// ==================================================
+// キャンセル
+// ==================================================
+
+manualCancelButton.addEventListener(
+  'click',
+  closeManualReception
+);
+
+
+function closeManualReception() {
+
+  manualReceptionOverlay.classList.remove(
+    'show'
+  );
+
+
+  selectedEmployeeNo =
+    '';
+
+
+  currentRequestId =
+    null;
+
+
+  currentAction =
+    null;
+
+
+  processing =
+    false;
+
+
+  message.textContent =
+    'QRコードをかざしてください';
+
+}
+
+
+// ==================================================
+// 社員番号検索
+// ==================================================
+
+employeeSearchButton.addEventListener(
+  'click',
+  searchEmployee
+);
+
+
+employeeNoInput.addEventListener(
+  'keydown',
+  function (event) {
+
+    if (
+      event.key === 'Enter'
+    ) {
+
+      event.preventDefault();
+
+      searchEmployee();
+
+    }
+
+  }
+);
+
+
+function searchEmployee() {
+
+  const employeeNo =
+    String(
+      employeeNoInput.value || ''
+    ).trim();
+
+
+  if (!employeeNo) {
+
+    manualMessage.textContent =
+      '社員番号を入力してください。';
+
+    return;
+
+  }
+
+
+  manualMessage.textContent =
+    '検索中…';
+
+
+  employeeSearchButton.disabled =
+    true;
+
+
+  sendGasRequest(
+    'lookupEmployee',
+    {
+      employeeNo:
+        employeeNo
+    }
+  );
+
+}
+
+
+// ==================================================
+// 確認画面から戻る
+// ==================================================
+
+manualBackButton.addEventListener(
+  'click',
+  function () {
+
+    selectedEmployeeNo =
+      '';
+
+
+    manualConfirmStep.style.display =
+      'none';
+
+
+    manualInputStep.style.display =
+      'block';
+
+
+    manualMessage.textContent =
+      '';
+
+
+    employeeNoInput.focus();
+
+  }
+);
+
+
+// ==================================================
+// 社員番号受付確定
+// ==================================================
+
+manualRegisterButton.addEventListener(
+  'click',
+  function () {
+
+    if (!selectedEmployeeNo) {
+      return;
+    }
+
+
+    manualRegisterButton.disabled =
+      true;
+
+
+    sendGasRequest(
+      'registerEmployee',
+      {
+        employeeNo:
+          selectedEmployeeNo
+      }
+    );
+
+  }
+);
 
         startScreen.style.display =
           'none';
@@ -672,7 +1274,7 @@
     */
     submitReception(token);
 
-  }   // ← ★これが不足していました
+  } 
 
 
 
@@ -699,103 +1301,181 @@
   // GASへ受付情報送信
   // ==================================================
 
-  function submitReception(
-    token
-  ) {
+// ==================================================
+// QR受付送信
+// ==================================================
 
-    processing =
-      true;
+function submitReception(
+  token
+) {
 
-
-    currentRequestId =
-      createRequestId();
-
-
-    message.textContent =
-      '受付処理中…';
+  processing =
+    true;
 
 
-    const form =
-      document.createElement(
-        'form'
+  message.textContent =
+    '受付処理中…';
+
+
+  sendGasRequest(
+    'qr',
+    {
+      token:
+        token
+    }
+  );
+
+}
+
+
+// ==================================================
+// GAS共通送信
+// ==================================================
+
+function sendGasRequest(
+  action,
+  parameters
+) {
+
+  currentRequestId =
+    createRequestId();
+
+
+  currentAction =
+    action;
+
+
+  const form =
+    document.createElement(
+      'form'
+    );
+
+
+  form.method =
+    'POST';
+
+
+  form.action =
+    GAS_WEB_APP_URL;
+
+
+  form.target =
+    'gasFrame';
+
+
+  form.style.display =
+    'none';
+
+
+  addHiddenInput(
+    form,
+    'action',
+    action
+  );
+
+
+  addHiddenInput(
+    form,
+    'requestId',
+    currentRequestId
+  );
+
+
+  Object.keys(
+    parameters
+  ).forEach(
+    function (key) {
+
+      addHiddenInput(
+        form,
+        key,
+        parameters[key]
+      );
+
+    }
+  );
+
+
+  document.body.appendChild(
+    form
+  );
+
+
+  form.submit();
+
+
+  form.remove();
+
+
+  const requestId =
+    currentRequestId;
+
+
+  // ------------------------------------------
+  // タイムアウト
+  // ------------------------------------------
+
+  setTimeout(
+    function () {
+
+      if (
+        currentRequestId !==
+        requestId
+      ) {
+
+        return;
+
+      }
+
+
+      // 社員番号画面
+      if (
+        currentAction ===
+          'lookupEmployee' ||
+        currentAction ===
+          'registerEmployee'
+      ) {
+
+        manualMessage.textContent =
+          '通信エラーが発生しました。もう一度お試しください。';
+
+
+        employeeSearchButton.disabled =
+          false;
+
+        manualRegisterButton.disabled =
+          false;
+
+
+        currentRequestId =
+          null;
+
+
+        currentAction =
+          null;
+
+
+        return;
+
+      }
+
+
+      // QR受付
+      showResult(
+        'error',
+        '！',
+        '通信エラー',
+        '',
+        'もう一度QRコードをかざしてください。',
+        ERROR_DISPLAY_TIME
       );
 
 
-    form.method =
-      'POST';
+    },
+    10000
+  );
 
-
-    form.action =
-      GAS_WEB_APP_URL;
-
-
-    form.target =
-      'gasFrame';
-
-
-    form.style.display =
-      'none';
-
-
-    addHiddenInput(
-      form,
-      'token',
-      token
-    );
-
-
-    addHiddenInput(
-      form,
-      'requestId',
-      currentRequestId
-    );
-
-
-    document.body.appendChild(
-      form
-    );
-
-
-    form.submit();
-
-
-    form.remove();
-
-
-
-    const requestId =
-      currentRequestId;
-
-
-
-    /*
-      GASから返事がない場合
-    */
-    setTimeout(
-      function () {
-
-        if (
-          processing &&
-          currentRequestId ===
-            requestId
-        ) {
-
-          showResult(
-            'error',
-            '！',
-            '通信エラー',
-            '',
-            'もう一度QRコードをかざしてください。',
-            ERROR_DISPLAY_TIME
-          );
-
-        }
-
-      },
-      10000
-    );
-
-  }
+}
 
 
 
@@ -830,171 +1510,409 @@
 
 
 
-  // ==================================================
-  // GASから受付結果を受信
-  // ==================================================
+// ==================================================
+// GASから結果受信
+// ==================================================
 
-  window.addEventListener(
-    'message',
-    function (event) {
+window.addEventListener(
+  'message',
+  function (event) {
 
-      const data =
-        event.data;
-
-
-      if (
-        !data ||
-        data.source !==
-          'flu-reception'
-      ) {
-
-        return;
-      }
+    const data =
+      event.data;
 
 
-      if (
-        data.requestId !==
-          currentRequestId
-      ) {
+    if (
+      !data ||
+      data.source !==
+        'flu-reception'
+    ) {
 
-        return;
-      }
-
-
-
-      switch (
-        data.status
-      ) {
-
-
-        // ------------------------------------------
-        // 新規受付成功
-        // ------------------------------------------
-
-        case 'success':
-
-          playSuccessSound();
-
-          showResult(
-            'success',
-            '✓',
-            '受付完了',
-            data.name + ' さん',
-            data.time || '',
-            SUCCESS_DISPLAY_TIME
-          );
-
-          break;
-
-
-
-        // ------------------------------------------
-        // 受付済み
-        // ------------------------------------------
-
-        case 'duplicate':
-
-          playWarningSound();
-
-          showResult(
-            'duplicate',
-            '！',
-            '受付済みです',
-            data.name + ' さん',
-            '受付時刻 ' +
-              (data.time || ''),
-            DUPLICATE_DISPLAY_TIME
-          );
-
-          break;
-
-
-
-        // ------------------------------------------
-        // 受付時間外
-        // ------------------------------------------
-
-        case 'closed':
-
-          playErrorSound();
-
-          showResult(
-            'error',
-            '×',
-            '受付時間外です',
-            '',
-            '',
-            ERROR_DISPLAY_TIME
-          );
-
-          break;
-
-
-
-        // ------------------------------------------
-        // 未登録QR
-        // ------------------------------------------
-
-        case 'invalid':
-
-          playErrorSound();
-
-          showResult(
-            'error',
-            '×',
-            '受付できません',
-            '',
-            data.message ||
-              '登録されていないQRコードです。',
-            ERROR_DISPLAY_TIME
-          );
-
-          break;
-
-
-
-        // ------------------------------------------
-        // 混雑
-        // ------------------------------------------
-
-        case 'busy':
-
-          playWarningSound();
-
-          showResult(
-            'duplicate',
-            '！',
-            '受付処理中です',
-            '',
-            'もう一度QRコードをかざしてください。',
-            1500
-          );
-
-          break;
-
-
-
-        // ------------------------------------------
-        // その他エラー
-        // ------------------------------------------
-
-        default:
-
-          playErrorSound();
-
-          showResult(
-            'error',
-            '×',
-            'エラー',
-            '',
-            '受付処理でエラーが発生しました。',
-            ERROR_DISPLAY_TIME
-          );
-
-      }
+      return;
 
     }
-  );
+
+
+    if (
+      data.requestId !==
+        currentRequestId
+    ) {
+
+      return;
+
+    }
+
+
+    const action =
+      data.action ||
+      currentAction ||
+      'qr';
+
+
+    // ==================================================
+    // 社員番号検索結果
+    // ==================================================
+
+    if (
+      action ===
+        'lookupEmployee'
+    ) {
+
+      employeeSearchButton.disabled =
+        false;
+
+
+      currentRequestId =
+        null;
+
+
+      currentAction =
+        null;
+
+
+      // ------------------------------------------
+      // 見つかった
+      // ------------------------------------------
+
+      if (
+        data.status ===
+          'found'
+      ) {
+
+        selectedEmployeeNo =
+          data.employeeNo;
+
+
+        confirmName.textContent =
+          data.name +
+          ' さん';
+
+
+        confirmDepartment.textContent =
+          '所属：' +
+          (
+            data.department ||
+            '―'
+          );
+
+
+        confirmEmployeeNo.textContent =
+          '社員番号：' +
+          data.employeeNo;
+
+
+        confirmTimeSlot.textContent =
+          '受付時間帯：' +
+          (
+            data.timeSlot ||
+            '―'
+          );
+
+
+        manualInputStep.style.display =
+          'none';
+
+
+        manualConfirmStep.style.display =
+          'block';
+
+
+        return;
+
+      }
+
+
+      // ------------------------------------------
+      // すでに受付済み
+      // ------------------------------------------
+
+      if (
+        data.status ===
+          'duplicate'
+      ) {
+
+        manualReceptionOverlay
+          .classList.remove(
+            'show'
+          );
+
+
+        playWarningSound();
+
+
+        showResult(
+          'duplicate',
+          '！',
+          '受付済みです',
+          data.name + ' さん',
+          '受付時刻 ' +
+            (data.time || ''),
+          DUPLICATE_DISPLAY_TIME
+        );
+
+
+        return;
+
+      }
+
+
+      // ------------------------------------------
+      // 時間外
+      // ------------------------------------------
+
+      if (
+        data.status ===
+          'closed'
+      ) {
+
+        manualReceptionOverlay
+          .classList.remove(
+            'show'
+          );
+
+
+        playErrorSound();
+
+
+        showResult(
+          'error',
+          '×',
+          '受付時間外です',
+          '',
+          '',
+          ERROR_DISPLAY_TIME
+        );
+
+
+        return;
+
+      }
+
+
+      // ------------------------------------------
+      // 見つからない等
+      // ------------------------------------------
+
+      manualMessage.textContent =
+        data.message ||
+        '該当する社員が見つかりません。';
+
+
+      return;
+
+    }
+
+
+    // ==================================================
+    // 社員番号受付確定結果
+    // ==================================================
+
+    if (
+      action ===
+        'registerEmployee'
+    ) {
+
+      manualRegisterButton.disabled =
+        false;
+
+
+      // ------------------------------------------
+      // 成功
+      // ------------------------------------------
+
+      if (
+        data.status ===
+          'success'
+      ) {
+
+        manualReceptionOverlay
+          .classList.remove(
+            'show'
+          );
+
+
+        playSuccessSound();
+
+
+        showResult(
+          'success',
+          '✓',
+          '受付完了',
+          data.name + ' さん',
+          data.time || '',
+          SUCCESS_DISPLAY_TIME
+        );
+
+
+        return;
+
+      }
+
+
+      // ------------------------------------------
+      // 二重受付
+      // ------------------------------------------
+
+      if (
+        data.status ===
+          'duplicate'
+      ) {
+
+        manualReceptionOverlay
+          .classList.remove(
+            'show'
+          );
+
+
+        playWarningSound();
+
+
+        showResult(
+          'duplicate',
+          '！',
+          '受付済みです',
+          data.name + ' さん',
+          '受付時刻 ' +
+            (data.time || ''),
+          DUPLICATE_DISPLAY_TIME
+        );
+
+
+        return;
+
+      }
+
+
+      // ------------------------------------------
+      // その他
+      // ------------------------------------------
+
+      currentRequestId =
+        null;
+
+      currentAction =
+        null;
+
+
+      manualMessage.textContent =
+        data.message ||
+        '受付できませんでした。';
+
+
+      return;
+
+    }
+
+
+    // ==================================================
+    // 以下、通常QR受付
+    // ==================================================
+
+    switch (
+      data.status
+    ) {
+
+
+      case 'success':
+
+        playSuccessSound();
+
+        showResult(
+          'success',
+          '✓',
+          '受付完了',
+          data.name + ' さん',
+          data.time || '',
+          SUCCESS_DISPLAY_TIME
+        );
+
+        break;
+
+
+      case 'duplicate':
+
+        playWarningSound();
+
+        showResult(
+          'duplicate',
+          '！',
+          '受付済みです',
+          data.name + ' さん',
+          '受付時刻 ' +
+            (data.time || ''),
+          DUPLICATE_DISPLAY_TIME
+        );
+
+        break;
+
+
+      case 'closed':
+
+        playErrorSound();
+
+        showResult(
+          'error',
+          '×',
+          '受付時間外です',
+          '',
+          '',
+          ERROR_DISPLAY_TIME
+        );
+
+        break;
+
+
+      case 'invalid':
+
+        playErrorSound();
+
+        showResult(
+          'error',
+          '×',
+          '受付できません',
+          '',
+          data.message ||
+            '登録されていないQRコードです。',
+          ERROR_DISPLAY_TIME
+        );
+
+        break;
+
+
+      case 'busy':
+
+        playWarningSound();
+
+        showResult(
+          'duplicate',
+          '！',
+          '受付処理中です',
+          '',
+          'もう一度お試しください。',
+          1500
+        );
+
+        break;
+
+
+      default:
+
+        playErrorSound();
+
+        showResult(
+          'error',
+          '×',
+          'エラー',
+          '',
+          data.message ||
+            '受付処理でエラーが発生しました。',
+          ERROR_DISPLAY_TIME
+        );
+
+    }
+
+  }
+);
 
 
 
