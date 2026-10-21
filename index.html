@@ -2043,17 +2043,31 @@ function showResult(
   // 自動で戻らない
   // ==========================================
 
-  if (
-    type === 'error'
-  ) {
+// ==========================================
+// エラーの場合
+// 自動で戻らない
+// ==========================================
 
-    retryButton.className =
-      'show';
+if (
+  type === 'error'
+) {
+
+  // GASからの応答は完了しているので
+  // 通信タイムアウトを発生させない
+  currentRequestId =
+    null;
+
+  currentAction =
+    null;
 
 
-    return;
+  retryButton.className =
+    'show';
 
-  }
+
+  return;
+
+}
 
 
   // ==========================================
