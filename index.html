@@ -2149,11 +2149,12 @@ function resetReceptionScreen() {
   // 音声
   // ==================================================
 
-  function playTone(
-    frequency,
-    duration,
-    volume = 0.18
-  ) {
+function playTone(
+  frequency,
+  duration,
+  volume = 0.18,
+  type = 'sine'
+) {
 
     if (!audioContext) {
       return;
