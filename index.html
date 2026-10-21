@@ -2288,47 +2288,45 @@ function resetReceptionScreen() {
 
 /*
   エラー音
-
-  低い3音で約1秒。
-  成功音・受付済み音と明確に区別する。
+  短い3連ビープ
 */
 function playErrorSound() {
 
-  // 1音目
   playTone(
-    440,
-    0.22,
-    0.22
+    780,
+    0.16,
+    0.20,
+    'square'
   );
 
 
-  // 2音目
   setTimeout(
     function () {
 
       playTone(
-        330,
-        0.28,
-        0.22
+        780,
+        0.16,
+        0.20,
+        'square'
       );
 
     },
-    260
+    270
   );
 
 
-  // 3音目
   setTimeout(
     function () {
 
       playTone(
-        220,
-        0.42,
-        0.24
+        780,
+        0.16,
+        0.20,
+        'square'
       );
 
     },
-    580
+    540
   );
 
 }
