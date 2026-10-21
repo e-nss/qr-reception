@@ -855,7 +855,20 @@ const confirmTimeSlot =
   let currentAction = null;
   
   let selectedEmployeeNo = '';
+  
+// ==================================================
+// エラー後の再読取
+// ==================================================
 
+retryButton.addEventListener(
+  'click',
+  function () {
+
+    resetReceptionScreen();
+
+  }
+);
+  
   // ==================================================
   // QRスキャナー
   // ==================================================
@@ -1386,6 +1399,10 @@ function submitReception(
 // GAS共通送信
 // ==================================================
 
+// ==================================================
+// GAS共通送信
+// ==================================================
+
 function sendGasRequest(
   action,
   parameters
@@ -1482,7 +1499,10 @@ function sendGasRequest(
       }
 
 
-      // 社員番号画面
+      // ------------------------------------------
+      // 社員番号受付
+      // ------------------------------------------
+
       if (
         currentAction ===
           'lookupEmployee' ||
@@ -1496,6 +1516,7 @@ function sendGasRequest(
 
         employeeSearchButton.disabled =
           false;
+
 
         manualRegisterButton.disabled =
           false;
@@ -1514,17 +1535,29 @@ function sendGasRequest(
       }
 
 
+      // ------------------------------------------
       // QR受付
-showResult(
-  'error',
-  '！',
-  '受付できませんでした',
-  '',
-  '「もう一度読み取る」を押して、QRコードを再度かざしてください。',
-  0
-);
+      // ------------------------------------------
+
+      playErrorSound();
+
+
+      showResult(
+        'error',
+        '！',
+        '受付できませんでした',
+        '',
+        '「もう一度読み取る」を押して、QRコードを再度かざしてください。',
+        0
+      );
+
+
+    },
+    10000
+  );
 
 }
+
 
 
 
