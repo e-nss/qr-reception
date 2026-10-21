@@ -135,7 +135,6 @@
 
       color: white;
 
-      pointer-events: none;
     }
 
 
@@ -185,6 +184,42 @@
     }
 
 
+/* =========================
+   再読取ボタン
+   ========================= */
+
+#retryButton {
+  display: none;
+
+  min-width: 300px;
+
+  margin-top: 40px;
+
+  padding: 20px 35px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: white;
+  color: #c5221f;
+
+  font-size: 27px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+#retryButton.show {
+  display: block;
+}
+
+
+#retryButton:active {
+  transform: scale(0.98);
+}
     /* =========================
        最初の受付開始画面
        ========================= */
@@ -641,17 +676,23 @@
        全画面結果
        ========================= -->
 
-  <div id="resultOverlay">
+<div id="resultOverlay">
 
-    <div id="resultIcon"></div>
+  <div id="resultIcon"></div>
 
-    <div id="resultTitle"></div>
+  <div id="resultTitle"></div>
 
-    <div id="resultName"></div>
+  <div id="resultName"></div>
 
-    <div id="resultDetail"></div>
+  <div id="resultDetail"></div>
 
-  </div>
+  <button
+    id="retryButton"
+    type="button">
+    もう一度読み取る
+  </button>
+
+</div>
 
 
 
@@ -679,7 +720,7 @@
 
 
   // 成功表示時間
-  const SUCCESS_DISPLAY_TIME = 1400;
+  const SUCCESS_DISPLAY_TIME = 2000;
 
   // 受付済み表示時間
   const DUPLICATE_DISPLAY_TIME = 1900;
@@ -719,6 +760,11 @@
 
   const resultDetail =
     document.getElementById('resultDetail');
+  
+const retryButton =
+  document.getElementById(
+    'retryButton'
+  );  
 
 const manualReceptionButton =
   document.getElementById(
@@ -1278,24 +1324,32 @@ manualRegisterButton.addEventListener(
 
 
 
-  function showReadingResult() {
+function showReadingResult() {
 
-    resultOverlay.className =
-      'show reading';
+  resultOverlay.className =
+    'show reading';
 
-    resultIcon.textContent =
-      '✓';
 
-    resultTitle.textContent =
-      '読み取りました';
+  resultIcon.textContent =
+    '…';
 
-    resultName.textContent =
-      'QRコードを離してください';
 
-    resultDetail.textContent =
-      '受付処理中…';
+  resultTitle.textContent =
+    '確認中';
 
-  }
+
+  resultName.textContent =
+    'そのままお待ちください';
+
+
+  resultDetail.textContent =
+    'まだ受付は完了していません';
+
+
+  retryButton.className =
+    '';
+
+}
   
   // ==================================================
   // GASへ受付情報送信
@@ -1461,19 +1515,14 @@ function sendGasRequest(
 
 
       // QR受付
-      showResult(
-        'error',
-        '！',
-        '通信エラー',
-        '',
-        'もう一度QRコードをかざしてください。',
-        ERROR_DISPLAY_TIME
-      );
-
-
-    },
-    10000
-  );
+showResult(
+  'error',
+  '！',
+  '受付できませんでした',
+  '',
+  '「もう一度読み取る」を押して、QRコードを再度かざしてください。',
+  0
+);
 
 }
 
@@ -1866,15 +1915,14 @@ window.addEventListener(
 
         playErrorSound();
 
-        showResult(
-          'error',
-          '×',
-          '受付できません',
-          '',
-          data.message ||
-            '登録されていないQRコードです。',
-          ERROR_DISPLAY_TIME
-        );
+showResult(
+  'error',
+  '×',
+  '受付できませんでした',
+  '',
+  '「もう一度読み取る」を押して、再度お試しください。',
+  0
+);
 
         break;
 
@@ -1920,88 +1968,135 @@ window.addEventListener(
   // 全画面結果表示
   // ==================================================
 
-  function showResult(
-    type,
-    icon,
-    title,
-    name,
-    detail,
-    displayTime
+// ==================================================
+// 全画面結果表示
+// ==================================================
+
+function showResult(
+  type,
+  icon,
+  title,
+  name,
+  detail,
+  displayTime
+) {
+
+  resultOverlay.className =
+    'show ' + type;
+
+
+  resultIcon.textContent =
+    icon;
+
+
+  resultTitle.textContent =
+    title;
+
+
+  resultName.textContent =
+    name || '';
+
+
+  resultDetail.textContent =
+    detail || '';
+
+
+  message.textContent =
+    title;
+
+
+  // ==========================================
+  // エラーの場合
+  // 自動で戻らない
+  // ==========================================
+
+  if (
+    type === 'error'
   ) {
 
-    /*
-      結果表示中もprocessing=trueなので
-      カメラは動いていても
-      次の受付は開始されない
-    */
+    retryButton.className =
+      'show';
 
 
-    resultOverlay.className =
-      'show ' + type;
-
-
-    resultIcon.textContent =
-      icon;
-
-
-    resultTitle.textContent =
-      title;
-
-
-    resultName.textContent =
-      name || '';
-
-
-    resultDetail.textContent =
-      detail || '';
-
-
-    message.textContent =
-      title;
-
-
-
-    setTimeout(
-      function () {
-
-        resultOverlay.className =
-          '';
-
-
-        resultIcon.textContent =
-          '';
-
-
-        resultTitle.textContent =
-          '';
-
-
-        resultName.textContent =
-          '';
-
-
-        resultDetail.textContent =
-          '';
-
-
-        processing =
-          false;
-
-
-        currentRequestId =
-          null;
-
-
-        message.textContent =
-          'QRコードをかざしてください';
-
-      },
-      displayTime
-    );
+    return;
 
   }
 
 
+  // ==========================================
+  // 成功・受付済み
+  // 一定時間後に自動復帰
+  // ==========================================
+
+  retryButton.className =
+    '';
+
+
+  setTimeout(
+    function () {
+
+      resetReceptionScreen();
+
+    },
+    displayTime
+  );
+
+}
+
+// ==================================================
+// 読み取り画面へ戻る
+// ==================================================
+
+function resetReceptionScreen() {
+
+  resultOverlay.className =
+    '';
+
+
+  resultIcon.textContent =
+    '';
+
+
+  resultTitle.textContent =
+    '';
+
+
+  resultName.textContent =
+    '';
+
+
+  resultDetail.textContent =
+    '';
+
+
+  retryButton.className =
+    '';
+
+
+  processing =
+    false;
+
+
+  currentRequestId =
+    null;
+
+
+  /*
+    エラー後に同じQRをすぐ再読取できるよう
+    読取ロックも解除する
+  */
+  lastToken =
+    '';
+
+
+  lastReadTime =
+    0;
+
+
+  message.textContent =
+    'QRコードをかざしてください';
+
+}
 
   // ==================================================
   // 音声
@@ -2144,30 +2239,52 @@ window.addEventListener(
 
 
 
-  /*
-    エラー
-  */
-  function playErrorSound() {
+/*
+  エラー音
 
-    playTone(
-      330,
-      0.20
-    );
+  低い3音で約1秒。
+  成功音・受付済み音と明確に区別する。
+*/
+function playErrorSound() {
+
+  // 1音目
+  playTone(
+    440,
+    0.22,
+    0.22
+  );
 
 
-    setTimeout(
-      function () {
+  // 2音目
+  setTimeout(
+    function () {
 
-        playTone(
-          280,
-          0.20
-        );
+      playTone(
+        330,
+        0.28,
+        0.22
+      );
 
-      },
-      180
-    );
+    },
+    260
+  );
 
-  }
+
+  // 3音目
+  setTimeout(
+    function () {
+
+      playTone(
+        220,
+        0.42,
+        0.24
+      );
+
+    },
+    580
+  );
+
+}
     
   /*
     読み取り
